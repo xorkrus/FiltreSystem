@@ -64,11 +64,18 @@ void storageBegin() {
     prefs.putBytes(NVS_KEY_FILTERS, &filters, sizeof(filters));
   }
 
-  if (prefs.isKey(NVS_KEY_STATS) &&
-      prefs.getBytesLength(NVS_KEY_STATS) == sizeof(stats)) {
-    prefs.getBytes(NVS_KEY_STATS, &stats, sizeof(stats));
-  } else {
-    memset(&stats, 0, sizeof(stats));
+  memset(&stats, 0, sizeof(stats));
+  if (prefs.isKey(NVS_KEY_STATS)) {
+    size_t len = prefs.getBytesLength(NVS_KEY_STATS);
+    if (len == sizeof(stats)) {
+      prefs.getBytes(NVS_KEY_STATS, &stats, sizeof(stats));
+    } else if (len > 0 && len < sizeof(stats)) {
+      // Совместимость со старым форматом: дозагружаем сколько влезло,
+      // новые поля останутся нулевыми (КПД мембраны начнётся с текущего момента)
+      prefs.getBytes(NVS_KEY_STATS, &stats, len);
+      Serial.printf("[NVS] stats: legacy blob %u -> %u bytes, mem bases reset\n",
+                    (unsigned)len, (unsigned)sizeof(stats));
+    }
   }
 
   if (prefs.isKey(NVS_KEY_HISTORY) &&

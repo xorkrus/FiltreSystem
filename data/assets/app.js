@@ -140,11 +140,19 @@ async function api(path, opts) {
 // === INDEX: рендер состояния фильтров и статистики ===
 const FILTER_COLORS = ['f1-col','f2-col','f3-col','f4-col','f5-col','f6-col'];
 
+// Аура карточки по остатку ресурса: 0% — красная, 1-19% — розовая, 20-79% — голубая, 80-100% — зелёная
+function auraClass(p) {
+  if (p <= 0)          return 'aura-red';
+  if (p < 20)          return 'aura-pink';
+  if (p < 80)          return 'aura-cyan';
+  return 'aura-green';
+}
+
 function renderFilters(filters) {
   const root = document.querySelector('.flasks-container');
   if (!root) return;
   root.innerHTML = filters.map((f, i) => `
-    <div class="flask-card">
+    <div class="flask-card ${auraClass(f.percent)}">
       <div class="flask-num">#${f.id} ${f.name}</div>
       <div class="flask-visual">
         <div class="flask-level ${FILTER_COLORS[i] || 'f1-col'}" style="height:${f.percent.toFixed(0)}%;"></div>
@@ -253,13 +261,18 @@ async function submitFiltersForm(e) {
   const rows = form.querySelectorAll('.filter-row:not(.filter-header)');
   const filters = [];
   rows.forEach((row, i) => {
-    const [res, rem, rep] = row.querySelectorAll('input');
-    filters.push({
+    const inputs = row.querySelectorAll('input');
+    const res = inputs[0], rem = inputs[1], rep = inputs[2];
+    const f = {
       id: i + 1,
       resource: parseFloat(res.value) || 0,
       remain:   parseFloat(rem.value) || 0,
       replace:  rep.value || ''
-    });
+    };
+    // Чекбокс "мембрана заменена" есть только в строке #4
+    const kpdCb = document.getElementById('memKpdReset');
+    if (kpdCb && row.contains(kpdCb)) f.memKpdReset = kpdCb.checked;
+    filters.push(f);
   });
   try {
     await api('/api/filters', {
@@ -267,10 +280,15 @@ async function submitFiltersForm(e) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ filters })
     });
-    alert('Параметры фильтров сохранены');
+    if (kpdNotified()) alert('Параметры фильтров сохранены, отсчёт КПД мембраны сброшен');
+    else alert('Параметры фильтров сохранены');
   } catch (err) {
     if (err.message !== 'cancelled') alert('Ошибка сохранения: ' + err.message);
   }
+}
+function kpdNotified() {
+  const cb = document.getElementById('memKpdReset');
+  return !!(cb && cb.checked);
 }
 
 // === SETTINGS page ===

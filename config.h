@@ -25,6 +25,7 @@
 #define DEFAULT_AUTH_USER     "admin"
 
 #define NUM_FILTERS           6
+#define MEMBRANE_FILTER_ID    4               // ступень с обратным осмосом (для сброса КПД мембраны)
 
 // ==================== NVS ====================
 #define NVS_NS                "aqua"

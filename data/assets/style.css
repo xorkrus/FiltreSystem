@@ -63,7 +63,14 @@ input[type="text"], input[type="password"], input[type="number"], input[type="da
 /* INDEX */
 .section-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
 .flasks-container { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 28px; }
-.flask-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 10px; display: flex; flex-direction: column; align-items: center; box-shadow: var(--card-shadow); text-align: center; }
+.flask-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 10px; display: flex; flex-direction: column; align-items: center; box-shadow: var(--card-shadow); text-align: center; transition: box-shadow 0.6s ease; }
+/* "Аура" состояния ресурса: мягкое цветное свечение вокруг карточки */
+.flask-card.aura-green  { box-shadow: var(--card-shadow), 0 0 18px 3px rgba(34,197,94,0.35);  border-color: rgba(34,197,94,0.45); }
+.flask-card.aura-cyan   { box-shadow: var(--card-shadow), 0 0 18px 3px rgba(56,189,248,0.35); border-color: rgba(56,189,248,0.45); }
+.flask-card.aura-pink   { box-shadow: var(--card-shadow), 0 0 18px 3px rgba(236,72,153,0.40); border-color: rgba(236,72,153,0.50); }
+.flask-card.aura-red    { box-shadow: var(--card-shadow), 0 0 20px 4px rgba(239,68,68,0.50);  border-color: rgba(239,68,68,0.60); animation: auraPulse 2.2s ease-in-out infinite; }
+@keyframes auraPulse { 0%,100% { box-shadow: var(--card-shadow), 0 0 14px 2px rgba(239,68,68,0.35); } 50% { box-shadow: var(--card-shadow), 0 0 22px 5px rgba(239,68,68,0.55); } }
+@media (prefers-reduced-motion: reduce) { .flask-card.aura-red { animation: none; } }
 .flask-num { font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px; }
 .flask-visual { width: 52px; height: 110px; border-radius: 8px 8px 18px 18px; border: 2px solid var(--border); position: relative; overflow: hidden; background: var(--surface-subtle); margin-bottom: 12px; display: flex; align-items: flex-end; }
 .flask-level { width: 100%; transition: height 0.5s ease; border-radius: 0 0 16px 16px; }
