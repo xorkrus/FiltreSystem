@@ -208,6 +208,21 @@ static void handleReset(AsyncWebServerRequest* req) {
   sendJson(req, out);
 }
 
+// ==================== API: /api/membrane/kpd-reset ====================
+// Сбрасывает только окно расчёта КПД мембраны (без сброса счётчиков и ресурса):
+// база = текущие тоталы, дальше КПД считается по данным новой мембраны
+
+static void handleMemKpdReset(AsyncWebServerRequest* req) {
+  if (!checkAuth(req)) { req->send(401, "application/json", "{\"error\":\"unauthorized\"}"); return; }
+
+  stats.memInletBase = stats.totalInlet;
+  stats.memPermBase  = stats.totalPermeate;
+  storageSaveStats();
+  nvsDirty = false;
+
+  req->send(200, "application/json", "{\"ok\":true}");
+}
+
 // ==================== API: /api/settings ====================
 
 static void handleSettingsGet(AsyncWebServerRequest* req) {
@@ -515,6 +530,7 @@ void webuiBegin() {
   server.on("/api/filters",          HTTP_GET,  handleFiltersGet);
   server.on("/api/filters",          HTTP_POST, handleFiltersPost,    nullptr, BodyAccum::onData);
   server.on("/api/reset",            HTTP_POST, handleReset,          nullptr, BodyAccum::onData);
+  server.on("/api/membrane/kpd-reset", HTTP_POST, handleMemKpdReset);
   server.on("/api/settings",         HTTP_GET,  handleSettingsGet);
   server.on("/api/settings/ap",      HTTP_POST, handleSettingsAp,     nullptr, BodyAccum::onData);
   server.on("/api/settings/sta",     HTTP_POST, handleSettingsSta,    nullptr, BodyAccum::onData);
