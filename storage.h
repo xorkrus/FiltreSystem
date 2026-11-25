@@ -30,6 +30,8 @@ struct Stats {
   float todayPermeate;
   char  lastDate[DATE_STR_LEN];  // к какой дате относятся today*
   char  firstDate[DATE_STR_LEN]; // первая дата запуска
+  float memInletBase;            // totalInlet на момент последней замены мембраны (#4)
+  float memPermBase;             // totalPermeate на момент последней замены мембраны (#4)
 };
 
 struct DailyHistory {

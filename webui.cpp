@@ -100,8 +100,12 @@ static void handleStatus(AsyncWebServerRequest* req) {
   s["today"]      = stats.todayPermeate;
   s["before"]     = stats.totalInlet;
   s["after"]      = stats.totalPermeate;
-  s["efficiency"] = (stats.totalInlet > 0.0f)
-                    ? (100.0f * stats.totalPermeate / stats.totalInlet) : 0.0f;
+  // КПД мембраны — с момента последней замены (#4), а не за всё время
+  float memIn  = stats.totalInlet    - stats.memInletBase;
+  float memPerm = stats.totalPermeate - stats.memPermBase;
+  if (memIn < 0.0f)  memIn  = 0.0f;
+  if (memPerm < 0.0f) memPerm = 0.0f;
+  s["efficiency"] = (memIn > 0.0f) ? (100.0f * memPerm / memIn) : 0.0f;
   s["since"]      = stats.firstDate;
 
   JsonObject d = doc.createNestedObject("device");
@@ -156,8 +160,14 @@ static void handleFiltersPost(AsyncWebServerRequest* req) {
       String d = v["replace"].as<String>();
       if (d.length() <= 10) strncpy(filters[idx].replace, d.c_str(), DATE_STR_LEN - 1);
     }
+    // Ручная отметка замены мембраны (#4) — тоже сбрасывает окно расчёта КПД
+    if (id == MEMBRANE_FILTER_ID && v.containsKey("memKpdReset") && v["memKpdReset"].as<bool>()) {
+      stats.memInletBase = stats.totalInlet;
+      stats.memPermBase  = stats.totalPermeate;
+    }
   }
   storageSaveFilters();
+  storageSaveStats();
   nvsDirty = false;
   req->send(200, "application/json", "{\"ok\":true}");
 }
@@ -180,6 +190,13 @@ static void handleReset(AsyncWebServerRequest* req) {
   String today = timemgrToday();
   if (today.length() == 10) strncpy(filters[idx].replace, today.c_str(), DATE_STR_LEN - 1);
 
+  // Замена мембраны: обнуляем базу для расчёта КПД (счётчики потребления не трогаем)
+  if (id == MEMBRANE_FILTER_ID) {
+    stats.memInletBase = stats.totalInlet;
+    stats.memPermBase  = stats.totalPermeate;
+    storageSaveStats();
+  }
+
   // Немедленная запись (действие пользователя — критично)
   storageSaveFilters();
   nvsDirty = false;
@@ -189,6 +206,21 @@ static void handleReset(AsyncWebServerRequest* req) {
   out["id"]      = id;
   out["replace"] = filters[idx].replace;
   sendJson(req, out);
+}
+
+// ==================== API: /api/membrane/kpd-reset ====================
+// Сбрасывает только окно расчёта КПД мембраны (без сброса счётчиков и ресурса):
+// база = текущие тоталы, дальше КПД считается по данным новой мембраны
+
+static void handleMemKpdReset(AsyncWebServerRequest* req) {
+  if (!checkAuth(req)) { req->send(401, "application/json", "{\"error\":\"unauthorized\"}"); return; }
+
+  stats.memInletBase = stats.totalInlet;
+  stats.memPermBase  = stats.totalPermeate;
+  storageSaveStats();
+  nvsDirty = false;
+
+  req->send(200, "application/json", "{\"ok\":true}");
 }
 
 // ==================== API: /api/settings ====================
@@ -380,8 +412,12 @@ static void handleDevice(AsyncWebServerRequest* req) {
 
 static void handleAnalytics(AsyncWebServerRequest* req) {
   DynamicJsonDocument doc(1024);
-  float inlet = stats.totalInlet;
-  float perm  = stats.totalPermeate;
+  // КПД мембраны считаем с момента последней замены (#4):
+  // базовые значения вычитаются из тоталов, сами счётчики не сбрасываются
+  float inlet = stats.totalInlet    - stats.memInletBase;
+  float perm  = stats.totalPermeate - stats.memPermBase;
+  if (inlet < 0.0f) inlet = 0.0f;
+  if (perm  < 0.0f) perm  = 0.0f;
   float drain = inlet - perm;
   if (drain < 0) drain = 0;
 
@@ -449,6 +485,8 @@ static void handleStatsReset(AsyncWebServerRequest* req) {
     stats.totalPermeate = 0;
     stats.todayInlet    = 0;
     stats.todayPermeate = 0;
+    stats.memInletBase  = 0;
+    stats.memPermBase   = 0;
     memset(&history, 0, sizeof(history));
   } else if (what == "today") {
     stats.todayInlet    = 0;
@@ -492,6 +530,7 @@ void webuiBegin() {
   server.on("/api/filters",          HTTP_GET,  handleFiltersGet);
   server.on("/api/filters",          HTTP_POST, handleFiltersPost,    nullptr, BodyAccum::onData);
   server.on("/api/reset",            HTTP_POST, handleReset,          nullptr, BodyAccum::onData);
+  server.on("/api/membrane/kpd-reset", HTTP_POST, handleMemKpdReset);
   server.on("/api/settings",         HTTP_GET,  handleSettingsGet);
   server.on("/api/settings/ap",      HTTP_POST, handleSettingsAp,     nullptr, BodyAccum::onData);
   server.on("/api/settings/sta",     HTTP_POST, handleSettingsSta,    nullptr, BodyAccum::onData);
