@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сервис — АкваКонтроль</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header>
+  <div class="logo-title">
+    <div class="logo-badge">H₂O</div>
+    <div>
+      <h1>АкваКонтроль ESP</h1>
+      <span>Сервисное обслуживание и калибровка</span>
+    </div>
+  </div>
+  <nav>
+    <a href="index.html" title="Главная">&#8962;</a>
+    <a href="service.html" class="active" title="Сервис">&#9874;&#65038;</a>
+    <a href="settings.html" title="Настройки">&#9881;&#65038;</a>
+    <a href="analytics.html" title="Аналитика">&#9684;</a>
+    <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+  </nav>
+</header>
+
+<main>
+  <div class="card">
+    <div class="card-title">
+      <span>Ручной ввод и корректировка ресурса фильтров</span>
+      <span style="font-size:12px;color:var(--text-dim);">NVS / LittleFS</span>
+    </div>
+    <div class="desc">
+      Здесь можно вручную скорректировать паспортный ресурс картриджей, текущий фактический остаток и дату регламентной замены (например, после частичной промывки или установки картриджа повышенной ёмкости).
+    </div>
+
+    <form>
+      <div class="filter-row filter-header">
+        <div>Наименование ступени</div>
+        <div>Полный ресурс (л)</div>
+        <div>Текущий остаток (л)</div>
+        <div>Дата установки</div>
+      </div>
+
+      <div class="filter-row">
+        <div><span class="badge" style="background:#c2410c;"></span>#1 Механика 10мкм</div>
+        <div><input type="number" value="6000" min="500" step="any"></div>
+        <div><input type="number" value="3900" min="0" step="any"></div>
+        <div><input type="date" value="2026-01-15"></div>
+      </div>
+
+      <div class="filter-row">
+        <div><span class="badge" style="background:#0284c7;"></span>#2 Механика 1мкм</div>
+        <div><input type="number" value="7000" min="500" step="any"></div>
+        <div><input type="number" value="3640" min="0" step="any"></div>
+        <div><input type="date" value="2026-01-15"></div>
+      </div>
+
+      <div class="filter-row">
+        <div><span class="badge" style="background:#0369a1;"></span>#3 Карбон-блок</div>
+        <div><input type="number" value="6000" min="500" step="any"></div>
+        <div><input type="number" value="2880" min="0" step="any"></div>
+        <div><input type="date" value="2026-01-15"></div>
+      </div>
+
+      <div class="filter-row">
+        <div><span class="badge" style="background:#22c55e;"></span>#4 Мембрана RO</div>
+        <div><input type="number" value="15000" min="1000" step="any"></div>
+        <div><input type="number" value="12300" min="0" step="any"></div>
+        <div><input type="date" value="2025-08-10"></div>
+      </div>
+
+      <div class="filter-row">
+        <div><span class="badge" style="background:#38bdf8;"></span>#5 Посткарбон</div>
+        <div><input type="number" value="4000" min="500" step="any"></div>
+        <div><input type="number" value="1400" min="0" step="any"></div>
+        <div><input type="date" value="2026-01-15"></div>
+      </div>
+
+      <div class="filter-row">
+        <div><span class="badge" style="background:#7dd3fc;"></span>#6 Минерализатор</div>
+        <div><input type="number" value="4000" min="500" step="any"></div>
+        <div><input type="number" value="2800" min="0" step="any"></div>
+        <div><input type="date" value="2026-01-15"></div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" onclick="location.reload()">Отмена</button>
+        <button type="submit" class="btn-primary">Сохранить в ESP</button>
+      </div>
+    </form>
+    <div class="card">
+	  <div class="card-title">📊 Сброс статистики</div>
+  	  <p class="hint" style="margin-bottom:14px;">
+  		Обнуляет накопленные счётчики воды. Ресурс фильтров не затрагивается.
+  	  </p>
+  	  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    	<button type="button" class="btn-secondary" onclick="resetStats('today')">Сбросить за сутки</button>
+    	<button type="button" class="btn-primary" style="background:var(--btn-reset)" onclick="resetStats('total')">Сбросить всё</button>
+	  </div>
+	</div>
+  </div>
+</main>
+
+<footer>ESP32-C3 WebUI • NVS / LittleFS • Автономный режим</footer>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

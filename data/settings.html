@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Настройки — АкваКонтроль</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header>
+  <div class="logo-title">
+    <div class="logo-badge">H₂O</div>
+    <div>
+      <h1>АкваКонтроль ESP</h1>
+      <span>Сетевые настройки и Wi-Fi модуль</span>
+    </div>
+  </div>
+  <nav>
+    <a href="index.html" title="Главная">&#8962;</a>
+    <a href="service.html" title="Сервис">&#9874;&#65038;</a>
+    <a href="settings.html" class="active" title="Настройки">&#9881;&#65038;</a>
+    <a href="analytics.html" title="Аналитика">&#9684;</a>
+    <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+  </nav>
+</header>
+
+<main>
+
+  <div class="card">
+    <div class="card-title">📡 Точка доступа (Access Point / AP)</div>
+    <p class="hint" style="margin-bottom:14px;">Автономная сеть, которую раздаёт контроллер, если нет связи с роутером.</p>
+    <form id="apForm">
+      <div class="form-group">
+        <label>SSID точки доступа</label>
+        <input type="text" name="ssid" value="AquaControl_AP" required>
+      </div>
+      <div class="form-group">
+        <label>Пароль точки доступа</label>
+        <input type="password" name="pass" value="12345678" minlength="8" required>
+        <div class="hint">Минимум 8 символов WPA2</div>
+      </div>
+      <button type="submit" class="btn-primary">Сохранить параметры AP</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🎯 Калибровка счётчиков</div>
+    <p class="hint" style="margin-bottom:14px;">
+      Прокачайте известный объём воды через систему и сохраните коэффициент.
+      Импульсы считаются на обоих датчиках одновременно.
+    </p>
+
+    <div class="form-group">
+      <label>Импульсы (вход / пермеат)</label>
+      <div class="grid-2">
+        <input type="text" id="calib_in"  readonly value="0">
+        <input type="text" id="calib_per" readonly value="0">
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button type="button" class="btn-primary"   onclick="calibStart()">Старт</button>
+      <button type="button" class="btn-secondary" onclick="calibStop()">Стоп</button>
+    </div>
+
+    <div class="form-group">
+      <label>Объём, который прокачали (л)</label>
+      <input type="number" id="calib_liters" value="1" min="0.1" step="any">
+    </div>
+
+    <button type="button" class="btn-primary" onclick="calibSave()">Сохранить калибровку</button>
+
+    <div class="hint" style="margin-top:12px;">
+      Текущие K: вход <span id="cur_k_in">—</span> имп/л,
+      пермеат <span id="cur_k_per">—</span> имп/л
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">⚙️ Ручная правка коэффициентов</div>
+    <p class="hint" style="margin-bottom:14px;">
+      Используйте, если знаете точное значение. Обычно достаточно калибровки выше.
+    </p>
+    <div class="form-group">
+      <label>Вход (импульсов на литр)</label>
+      <input type="number" id="inlet_k" value="450" step="any" min="1">
+    </div>
+    <div class="form-group">
+      <label>Пермеат (импульсов на литр)</label>
+      <input type="number" id="permeate_k" value="450" step="any" min="1">
+    </div>
+    <button type="button" class="btn-primary" onclick="saveCalib()">Сохранить</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔒 Безопасность</div>
+    <p class="hint" style="margin-bottom:14px;">Защита сброса фильтров и настроек PIN-кодом. По умолчанию выключена.</p>
+
+    <div class="form-group">
+      <label style="display:flex; align-items:center; gap:8px; font-weight:normal;">
+        <input type="checkbox" id="auth_enabled" style="width:auto;">
+        Запрашивать PIN при изменении настроек
+      </label>
+    </div>
+
+    <div class="form-group">
+      <label>PIN-код (4–8 цифр)</label>
+      <input type="password" id="auth_pin" inputmode="numeric" pattern="\d{4,8}" placeholder="••••">
+      <div class="hint">Оставьте пустым, чтобы не менять. Сброс через GPIO — PIN становится 0000.</div>
+    </div>
+
+    <button type="button" class="btn-primary" onclick="saveAuth()">Сохранить безопасность</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📶 Подключение к домашнему Wi-Fi (Station / STA)</div>
+    <p class="hint" style="margin-bottom:14px;">Подключение контроллера к вашей домашней сети.</p>
+    <form id="staForm">
+      <div class="form-group">
+        <label>SSID домашнего Wi-Fi</label>
+        <input type="text" name="ssid" value="Home_Network_2.4G" required>
+      </div>
+      <div class="form-group">
+        <label>Пароль домашней сети</label>
+        <input type="password" name="pass" value="MySecurePass123" required>
+      </div>
+      <div class="form-group">
+        <label>IP адрес в сети</label>
+        <input type="text" value="192.168.1.145 (DHCP)" readonly style="opacity:0.8;">
+      </div>
+      <button type="submit" class="btn-primary">Подключить STA и перезагрузить Wi-Fi</button>
+    </form>
+  </div>
+
+</main>
+
+<footer>ESP32-C3 WebUI • Wi-Fi MAC: 5C:CF:7F:1B:90:A4</footer>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

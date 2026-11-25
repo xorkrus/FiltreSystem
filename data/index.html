@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>АкваКонтроль — Система фильтрации</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header>
+  <div class="logo-title">
+    <div class="logo-badge">H₂O</div>
+    <div><h1>АкваКонтроль</h1></div>
+  </div>
+  <nav>
+    <a href="index.html" class="active" title="Главная">&#8962;</a>
+    <a href="service.html" title="Сервис">&#9874;&#65038;</a>
+    <a href="settings.html" title="Настройки">&#9881;&#65038;</a>
+    <a href="analytics.html" title="Аналитика">&#9684;</a>
+    <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+  </nav>
+</header>
+
+<main>
+  <div class="section-title"><span>Состояние фильтров</span></div>
+
+  <div class="flasks-container">
+    <div class="flask-card">
+      <div class="flask-num">#1 Механика 10мкм</div>
+      <div class="flask-visual"><div class="flask-level f1-col" style="height:65%;"></div></div>
+      <div class="flask-meta">
+        <div class="meta-row"><span class="meta-label">Ресурс:</span><span class="meta-val">6000 л</span></div>
+        <div class="meta-row"><span class="meta-label">Остаток:</span><span class="meta-val">3900 л</span></div>
+        <div class="date-row">Замена: 15.01.2026</div>
+      </div>
+      <button class="btn-reset" onclick="confirmReset(1, 'Механика 10мкм')">Сброс</button>
+    </div>
+
+    <div class="flask-card">
+      <div class="flask-num">#2 Механика 1мкм</div>
+      <div class="flask-visual"><div class="flask-level f2-col" style="height:52%;"></div></div>
+      <div class="flask-meta">
+        <div class="meta-row"><span class="meta-label">Ресурс:</span><span class="meta-val">7000 л</span></div>
+        <div class="meta-row"><span class="meta-label">Остаток:</span><span class="meta-val">3640 л</span></div>
+        <div class="date-row">Замена: 15.01.2026</div>
+      </div>
+      <button class="btn-reset" onclick="confirmReset(2, 'Механика 1мкм')">Сброс</button>
+    </div>
+
+    <div class="flask-card">
+      <div class="flask-num">#3 Карбон-блок</div>
+      <div class="flask-visual"><div class="flask-level f3-col" style="height:48%;"></div></div>
+      <div class="flask-meta">
+        <div class="meta-row"><span class="meta-label">Ресурс:</span><span class="meta-val">6000 л</span></div>
+        <div class="meta-row"><span class="meta-label">Остаток:</span><span class="meta-val">2880 л</span></div>
+        <div class="date-row">Замена: 15.01.2026</div>
+      </div>
+      <button class="btn-reset" onclick="confirmReset(3, 'Карбон-блок')">Сброс</button>
+    </div>
+
+    <div class="flask-card">
+      <div class="flask-num">#4 Мембрана RO</div>
+      <div class="flask-visual"><div class="flask-level f4-col" style="height:82%;"></div></div>
+      <div class="flask-meta">
+        <div class="meta-row"><span class="meta-label">Ресурс:</span><span class="meta-val">15000 л</span></div>
+        <div class="meta-row"><span class="meta-label">Остаток:</span><span class="meta-val">12300 л</span></div>
+        <div class="date-row">Замена: 10.08.2025</div>
+      </div>
+      <button class="btn-reset" onclick="confirmReset(4, 'Мембрана RO')">Сброс</button>
+    </div>
+
+    <div class="flask-card">
+      <div class="flask-num">#5 Посткарбон</div>
+      <div class="flask-visual"><div class="flask-level f5-col" style="height:35%;"></div></div>
+      <div class="flask-meta">
+        <div class="meta-row"><span class="meta-label">Ресурс:</span><span class="meta-val">4000 л</span></div>
+        <div class="meta-row"><span class="meta-label">Остаток:</span><span class="meta-val">1400 л</span></div>
+        <div class="date-row">Замена: 15.01.2026</div>
+      </div>
+      <button class="btn-reset" onclick="confirmReset(5, 'Посткарбон')">Сброс</button>
+    </div>
+
+    <div class="flask-card">
+      <div class="flask-num">#6 Минерализатор</div>
+      <div class="flask-visual"><div class="flask-level f6-col" style="height:70%;"></div></div>
+      <div class="flask-meta">
+        <div class="meta-row"><span class="meta-label">Ресурс:</span><span class="meta-val">4000 л</span></div>
+        <div class="meta-row"><span class="meta-label">Остаток:</span><span class="meta-val">2800 л</span></div>
+        <div class="date-row">Замена: 15.01.2026</div>
+      </div>
+      <button class="btn-reset" onclick="confirmReset(6, 'Минерализатор')">Сброс</button>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="stats-box">
+    <div class="stats-title">Статистика</div>
+
+    <div class="stats-row row-1">
+      <div class="stat-card">
+        <div class="stat-info">
+          <span class="stat-label">Литров за всё время</span>
+          <span class="stat-val">15 л</span>
+          <span class="stat-sub">отсчет ведется с 21.07.2026</span>
+        </div>
+        <div style="font-size:24px;">💧</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-info">
+          <span class="stat-label">Литров за последние сутки</span>
+          <span class="stat-val">4.2 л</span>
+          <span class="stat-sub">за 24 ч (норма: 3-8 л)</span>
+        </div>
+        <div style="font-size:24px;">⏱️</div>
+      </div>
+    </div>
+
+    <div class="stats-row row-2">
+      <div class="stat-card">
+        <div class="stat-info">
+          <span class="stat-label">Литров ДО фильтров</span>
+          <span class="stat-val">58.5 л</span>
+          <span class="stat-sub">общий расход исходной воды</span>
+        </div>
+        <div style="font-size:24px;">🚰</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-info">
+          <span class="stat-label">Литров ПОСЛЕ мембраны</span>
+          <span class="stat-val">15.0 л</span>
+          <span class="stat-sub">чистый пермеат</span>
+        </div>
+        <div style="font-size:24px;">✨</div>
+      </div>
+    </div>
+
+    <div class="stats-row row-3">
+      <div class="stat-card">
+        <div class="stat-info">
+          <span class="stat-label">КПД мембраны (соотношение пермеат / дренаж)</span>
+          <span class="stat-val">25.6% <span style="font-size:13px; font-weight:normal; color:var(--text-dim);">(1 л чистой на 2.9 л дренажа)</span></span>
+          <span class="stat-sub">Расчет: (15.0 л / 58.5 л) × 100% • Состояние: Отличное</span>
+        </div>
+        <div class="kpi-badge">25.6%</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<dialog id="resetModal">
+  <h3 id="modalTitle" style="margin-bottom:8px;">Сброс ресурса</h3>
+  <p id="modalMsg" style="font-size:13px;color:var(--text-dim);">Вы действительно хотите сбросить счетчик и установить текущую дату как дату замены?</p>
+  <div class="dlg-btns">
+    <button class="dlg-btn" onclick="closeResetModal()">Отмена</button>
+    <button class="dlg-btn dlg-btn-confirm" onclick="executeReset()">Сбросить</button>
+  </div>
+</dialog>
+
+<footer>ESP32-C3 WebUI • --/--/---- | --:--:--</footer>
+
+<script src="assets/app.js"></script>
+</body>
+</html>
