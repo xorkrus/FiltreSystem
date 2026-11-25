@@ -4,6 +4,7 @@ setlocal enabledelayedexpansion
 cd /d "%~dp0"
 
 set FQBN=esp32:esp32:esp32c3
+set ARDUINO_DIRECTORIES_DATA=D:\Soft\arduino-cli\ArduinoData
 set BOARD_OPTS=CDCOnBoot=cdc,CPUFreq=80
 set MKLITTLEFS="D:\Soft\arduino-cli\ArduinoData\packages\esp32\tools\mklittlefs\4.0.2-db0513a\mklittlefs.exe"
 set BUILD=build
