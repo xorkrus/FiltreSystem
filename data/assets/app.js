@@ -158,13 +158,32 @@ function renderFilters(filters) {
         <div class="flask-level ${FILTER_COLORS[i] || 'f1-col'}" style="height:${f.percent.toFixed(0)}%;"></div>
       </div>
       <div class="flask-meta">
-        <div class="meta-row"><span class="meta-label">Ресурс:</span><span class="meta-val">${Math.round(f.resource)} л</span></div>
-        <div class="meta-row"><span class="meta-label">Остаток:</span><span class="meta-val">${Math.round(f.remain)} л</span></div>
-        <div class="date-row">Замена: ${f.replace || '—'}</div>
+        <div class="meta-row"><span class="meta-label" title="Ресурс">Р:</span><span class="meta-val">${Math.round(f.resource)} л</span></div>
+        <div class="meta-row"><span class="meta-label" title="Остаток">О:</span><span class="meta-val">${Math.round(f.remain)} л</span></div>
+        <div class="date-row">Замена: ${fmtDate(f.replace)}</div>
       </div>
       <button class="btn-reset" onclick="confirmReset(${f.id}, '${f.name.replace(/'/g, "\\'")}')">Сброс</button>
+${f.id === 4 ? '<button class="btn-kpd" title="Обнулить отсчёт КПД мембраны без сброса счётчиков воды" onclick="confirmKpdReset()">Сброс КПД</button>' : ''}
     </div>
   `).join('');
+}
+
+// "2026-01-15" -> "15/01/26" (компактный формат даты для мобильных)
+function fmtDate(d) {
+  if (!d) return '—';
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d);
+  if (!m) return d;
+  return m[3] + '/' + m[2] + '/' + m[1].slice(2);
+}
+
+async function confirmKpdReset() {
+  if (!confirm('Сбросить отсчёт КПД мембраны?\n\nСчётчики потребления и дренажа НЕ сбрасываются —\nКПД будет считаться заново, с текущего момента.')) return;
+  try {
+    await api('/api/membrane/kpd-reset', { method: 'POST' });
+    await loadStatus();
+  } catch (e) {
+    if (e.message !== 'cancelled') alert('Ошибка сброса КПД: ' + e.message);
+  }
 }
 
 function fmt(n, d = 1) { return Number(n).toFixed(d); }
