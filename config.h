@@ -16,8 +16,8 @@
 // ==================== Значения по умолчанию ====================
 #define DEFAULT_AP_SSID       "AquaControl_AP"
 #define DEFAULT_AP_PASS       "12345678"
-#define DEFAULT_STA_SSID      "xopkland"
-#define DEFAULT_STA_PASS      "1234567890987654321"
+#define DEFAULT_STA_SSID      "HOME_SSID"
+#define DEFAULT_STA_PASS      "HOME_PASS"
 #define DEFAULT_NTP_SERVER    "pool.ntp.org"
 #define DEFAULT_TZ_OFFSET     3               // Москва
 #define DEFAULT_INLET_K       450.0f          // импульсов на литр (YF-S201)
