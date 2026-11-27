@@ -190,21 +190,65 @@ function fmt(n, d = 1) { return Number(n).toFixed(d); }
 
 function renderStats(s) {
   const cards = document.querySelectorAll('.stats-box .stat-card');
-  if (cards.length < 5) return;
-  cards[0].querySelector('.stat-val').innerText  = fmt(s.total) + ' л';
-  cards[1].querySelector('.stat-val').innerText  = fmt(s.today) + ' л';
-  cards[2].querySelector('.stat-val').innerText  = fmt(s.before) + ' л';
-  cards[3].querySelector('.stat-val').innerText  = fmt(s.after) + ' л';
-  cards[4].querySelector('.stat-val').innerHTML  =
-    fmt(s.efficiency) + '% <span style="font-size:13px;font-weight:normal;color:var(--text-dim);">(1 л чистой на ' +
-    (s.after > 0.01 ? fmt((s.before - s.after) / s.after, 2) : '—') + ' л дренажа)</span>';
+  if (cards.length < 3) return;
+
+  // 1. Всего литров (вход / пермеат / дренаж)
+  const c1 = cards[0];
+  const drain = Math.max(0, s.before - s.after);
+  c1.querySelector('#statValTotal').innerHTML = `
+    <span class="tooltip-container" tabindex="0">${fmt(s.before)} л<span class="tooltiptext">Общий расход исходной воды</span></span>
+    <span class="sep">/</span>
+    <span class="tooltip-container" tabindex="0">${fmt(s.after)} л<span class="tooltiptext">Объем чистой воды (пермеат)</span></span>
+    <span class="sep">/</span>
+    <span class="tooltip-container" tabindex="0">${fmt(drain)} л<span class="tooltiptext">Объем дренажа (концентрат)</span></span>
+  `;
+  if (s.since) c1.querySelector('#statSince').innerText = 'отсчет ведется с ' + s.since;
+
+  // 2. Средний расход (сегодня + неделя/месяц)
+  const c2 = cards[1];
+  c2.querySelector('#statValToday').innerText = fmt(s.today) + ' л';
+  
+  if (_lastAnalytics && _lastAnalytics.history && _lastAnalytics.history.length > 0) {
+    const hist = _lastAnalytics.history;
+    let wSum = 0, mSum = 0;
+    const wLen = Math.min(7, hist.length);
+    const mLen = Math.min(30, hist.length);
+    for (let i = 0; i < mLen; i++) mSum += hist[i].liters;
+    for (let i = 0; i < wLen; i++) wSum += hist[i].liters;
+    const wAvg = wLen > 0 ? (wSum / wLen) : 0;
+    const mAvg = mLen > 0 ? (mSum / mLen) : 0;
+    c2.querySelector('#statAvg').innerText = `Ср. за неделю: ${fmt(wAvg)} л • Ср. за месяц: ${fmt(mAvg)} л`;
+  } else {
+    c2.querySelector('#statAvg').innerText = 'Расчет среднего...';
+  }
+
+  // 3. КПД мембраны
+  const c3 = cards[2];
+  const effStr = fmt(s.efficiency) + '%';
+  
+  // Берем реальные цифры от базы, если бэкенд их прислал, иначе fallback
+  const memBefore = s.mem_before !== undefined ? s.mem_before : s.before;
+  const memAfter  = s.mem_after  !== undefined ? s.mem_after  : s.after;
+
+  c3.querySelector('#statValEff').innerHTML = `
+    <span class="tooltip-container" tabindex="0" style="border-bottom:none;">${effStr}
+      <span class="tooltiptext">Расчет: (${fmt(memAfter)} л / ${fmt(memBefore)} л) × 100%</span>
+    </span>
+  `;
+  
   const badge = document.querySelector('.kpi-badge');
-  if (badge) badge.innerText = fmt(s.efficiency) + '%';
-  const since = cards[0].querySelector('.stat-sub');
-  if (since && s.since) since.innerText = 'отсчет ведется с ' + s.since;
+  if (badge) badge.innerText = effStr;
+  
+  if (s.efficiency > 0 && memAfter > 0.01) {
+    const dr = (memBefore - memAfter) / memAfter;
+    c3.querySelector('#statDrain').innerText = `1 л чистой на ${fmt(dr, 2)} л дренажа`;
+  } else {
+    c3.querySelector('#statDrain').innerText = `— л дренажа (нет данных)`;
+  }
 }
 
 let _lastDevice = null;
+let _lastAnalytics = null;
 
 function renderDevice(d) {
   const f = document.querySelector('footer');
@@ -419,10 +463,13 @@ async function submitStaForm(e) {
 
 // === ANALYTICS page ===
 async function loadAnalytics() {
-  const root = document.querySelector('.metrics-grid');
-  if (!root) return;
   try {
     const j = await api('/api/analytics');
+    _lastAnalytics = j; // Сохраняем историю для главной страницы
+
+    const root = document.querySelector('.metrics-grid');
+    if (!root) return; // Если мы не на странице аналитики, дальше не идем
+    
     const nums = root.querySelectorAll('.metric-num');
     if (nums[0]) nums[0].innerText = fmt(j.total_in) + ' л';
     if (nums[1]) nums[1].innerText = fmt(j.drain) + ' л';
@@ -450,7 +497,7 @@ document.addEventListener('DOMContentLoaded', () => {
     serviceForm.addEventListener('submit', submitFiltersForm);
   }
   
-    // Settings
+  // Settings
   const apForm  = document.getElementById('apForm');
   const staForm = document.getElementById('staForm');
   if (apForm || staForm || document.getElementById('inlet_k')) {
@@ -458,15 +505,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (apForm)  apForm.addEventListener('submit', submitApForm);
     if (staForm) staForm.addEventListener('submit', submitStaForm);
   }
-  // Analytics
+  
+  // Analytics (история нужна на главной и на странице аналитики)
   if (document.querySelector('.metrics-grid')) loadAnalytics();
 
   // Index: если есть флаконы — грузим статус и обновляем каждые 3 с
   if (document.querySelector('.flasks-container')) {
     loadStatus();
+    loadAnalytics(); // Грузим историю при старте для средних значений
     setInterval(loadStatus, 3000);
+    setInterval(loadAnalytics, 60000); // Обновляем средние раз в минуту
   }
 });
+
 // Calibrating
 let calibTimer = null;
 

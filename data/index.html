@@ -98,53 +98,34 @@
   <div class="stats-box">
     <div class="stats-title">Статистика</div>
 
-    <div class="stats-row row-1">
-      <div class="stat-card">
-        <div class="stat-info">
-          <span class="stat-label">Литров за всё время</span>
-          <span class="stat-val">15 л</span>
-          <span class="stat-sub">отсчет ведется с 21.07.2026</span>
-        </div>
-        <div style="font-size:24px;">💧</div>
+    <!-- 1. Всего: Исходная / Чистая / Дренаж -->
+    <div class="stat-card">
+      <div class="stat-info">
+        <span class="stat-label">Всего литров (исходная / чистая / дренаж)</span>
+        <span class="stat-val" id="statValTotal">— / — / —</span>
+        <span class="stat-sub" id="statSince">отсчет ведется с —</span>
       </div>
-      <div class="stat-card">
-        <div class="stat-info">
-          <span class="stat-label">Литров за последние сутки</span>
-          <span class="stat-val">4.2 л</span>
-          <span class="stat-sub">за 24 ч (норма: 3-8 л)</span>
-        </div>
-        <div style="font-size:24px;">⏱️</div>
-      </div>
+      <div style="font-size:24px;">💧</div>
     </div>
 
-    <div class="stats-row row-2">
-      <div class="stat-card">
-        <div class="stat-info">
-          <span class="stat-label">Литров ДО фильтров</span>
-          <span class="stat-val">58.5 л</span>
-          <span class="stat-sub">общий расход исходной воды</span>
-        </div>
-        <div style="font-size:24px;">🚰</div>
+    <!-- 2. Средний расход -->
+    <div class="stat-card">
+      <div class="stat-info">
+        <span class="stat-label">Расход воды (за сегодня)</span>
+        <span class="stat-val" id="statValToday">— л</span>
+        <span class="stat-sub" id="statAvg">Ср. за неделю: — • Ср. за месяц: —</span>
       </div>
-      <div class="stat-card">
-        <div class="stat-info">
-          <span class="stat-label">Литров ПОСЛЕ мембраны</span>
-          <span class="stat-val">15.0 л</span>
-          <span class="stat-sub">чистый пермеат</span>
-        </div>
-        <div style="font-size:24px;">✨</div>
-      </div>
+      <div style="font-size:24px;">⏱️</div>
     </div>
 
-    <div class="stats-row row-3">
-      <div class="stat-card">
-        <div class="stat-info">
-          <span class="stat-label">КПД мембраны (соотношение пермеат / дренаж)</span>
-          <span class="stat-val">25.6% <span style="font-size:13px; font-weight:normal; color:var(--text-dim);">(1 л чистой на 2.9 л дренажа)</span></span>
-          <span class="stat-sub">Расчет: (15.0 л / 58.5 л) × 100% • Состояние: Отличное</span>
-        </div>
-        <div class="kpi-badge">25.6%</div>
+    <!-- 3. КПД мембраны -->
+    <div class="stat-card">
+      <div class="stat-info">
+        <span class="stat-label">КПД мембраны (соотношение пермеат / дренаж)</span>
+        <span class="stat-val" id="statValEff">—%</span>
+        <span class="stat-sub" id="statDrain">— л дренажа</span>
       </div>
+      <div class="kpi-badge" id="kpiBadge">—%</div>
     </div>
   </div>
 </main>

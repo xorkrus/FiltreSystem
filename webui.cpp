@@ -83,7 +83,7 @@ static bool parseJsonBody(AsyncWebServerRequest* req, JsonDocument& doc) {
 // ==================== API: /api/status ====================
 
 static void handleStatus(AsyncWebServerRequest* req) {
-  DynamicJsonDocument doc(2048);
+  DynamicJsonDocument doc(2304); // Увеличен размер под новые поля
   JsonArray arr = doc.createNestedArray("filters");
   for (int i = 0; i < NUM_FILTERS; i++) {
     JsonObject f = arr.createNestedObject();
@@ -106,6 +106,12 @@ static void handleStatus(AsyncWebServerRequest* req) {
   if (memIn < 0.0f)  memIn  = 0.0f;
   if (memPerm < 0.0f) memPerm = 0.0f;
   s["efficiency"] = (memIn > 0.0f) ? (100.0f * memPerm / memIn) : 0.0f;
+  
+  // --- ДОБАВЛЕНО ДЛЯ UI ---
+  s["mem_before"] = memIn;
+  s["mem_after"]  = memPerm;
+  // ------------------------
+
   s["since"]      = stats.firstDate;
 
   JsonObject d = doc.createNestedObject("device");
