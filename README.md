@@ -10,11 +10,11 @@
 
 | Главная (Тёмная тема) | Главная (Светлая тема) |
 | :---: | :---: |
-| <img src="images/index.png" width="400" /> | <img src="images/index2.png" width="400" /> |
+| <img src="images/1.index.png" width="400" /> | <img src="images/2.index2.png" width="400" /> |
 
 | Сервис и калибровка | Аналитика |
 | :---: | :---: |
-| <img src="images/service.png" width="400" /> | <img src="images/analytics.png" width="400" /> |
+| <img src="images/3.service.png" width="400" /> | <img src="images/4.analytics.png" width="400" /> |
 
 ---
 
